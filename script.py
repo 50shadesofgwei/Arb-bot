@@ -4,15 +4,14 @@ import json
 import time
 import hmac
 import hashlib
+import schedule
 import numpy as np
 import http.client
 from binance.client import Client
 from requests.exceptions import RequestException
 from binance.exceptions import BinanceAPIException, BinanceOrderException
 
-# All keys are for testing wallets only and have no access to capital
-# All keys are for testing wallets only and have no access to capital
-# All keys are for testing wallets only and have no access to capital
+
 
 # All coinbase vars/defs
 class Coinbase:
@@ -43,7 +42,8 @@ class Coinbase:
     def get_btc_usd_price(self):
         method = "GET"
         url_path = "/v2/prices/BTC-USD/buy"
-        headers = self.get_headers(method, url_path)
+        body = ""
+        headers = self.get_headers(method, url_path, body)
         try:
             response = requests.get(self.BASE_URL + url_path, headers=headers)
         except Exception as err:
@@ -73,7 +73,7 @@ class Coinbase:
         }
         }
     })
-        headers = self.get_headers()
+        headers = self.get_headers(method, url_path, payload)
         try:
             conn.request(method, url_path, payload, headers=headers)
             res = conn.getresponse()
@@ -92,7 +92,7 @@ class Coinbase:
         method = "POST"
         url_path = "/api/v3/brokerage/orders"
         int_order_id = np.random.randint(2**63)
-        coinFloat = self.get_btc_usd_price(self)
+        coinFloat = self.get_btc_usd_price()
         baseSize = 1/(coinFloat/1000)
         baseSize = str(baseSize)
         payload = json.dumps({
@@ -105,7 +105,7 @@ class Coinbase:
         }
     }
     })
-        headers = self.get_headers()
+        headers = self.get_headers(method, url_path, payload)
         try:
             conn.request(method, url_path, payload, headers=headers)
             res = conn.getresponse()
@@ -126,8 +126,8 @@ class Binance:
     accessKey = 'umg6kwhTo2le1RNYWridgkSmy7e2R7RN904HTBc4cex1XMULQnXWPdsGXVFf3PVe'
     client = Client(secretKey, accessKey)
 
-    def __init__(self):
-        pass
+    def __init__(self, client):
+        self.client = client
     
     def get_BTCUSDT_price(self):
         try:
@@ -174,9 +174,15 @@ class Binance:
     
 
 class Calculations:
+    coinSecretKey = "YhgPlByvWIGeNUP4lgkumniGao7usjha"
+    coinAccessKey = "DFtojCm1QzzWWCXp"
+    biSecretKey = 'EplcH4b00prUTAN4PRs2cAHO88kYGztwjZn7Ezi1BjrfNHItvidHKIBPebPRMmCw'
+    biAccessKey = 'umg6kwhTo2le1RNYWridgkSmy7e2R7RN904HTBc4cex1XMULQnXWPdsGXVFf3PVe'
+    client = Client(biSecretKey, biAccessKey)
+
     def __init__(self):
-        self.coinbaseInstance = Coinbase()
-        self.binanceInstance = Binance()
+        self.coinbaseInstance = Coinbase(self.coinAccessKey, self.coinSecretKey)
+        self.binanceInstance = Binance(self.client)
         
 
     def callCoinPrice(self):
@@ -204,4 +210,24 @@ class Calculations:
         if path2 > 0:
             return True
         else: return False
+    
+    def run(self):
+        # Get prices
+        coinPrice = self.callCoinPrice()
+        biPrice = self.callBiPrice()
 
+        if self.checkProfitability1(biPrice, coinPrice):
+            # If price is higher on Binance, buy on Coinbase and sell on Binance
+            self.coinbaseInstance.buy_order()
+            self.binanceInstance.sell_order()
+        elif self.checkProfitability2(biPrice, coinPrice):
+            # If price is higher on Coinbase, buy on Binance and sell on Coinbase
+            self.binanceInstance.buy_order()
+            self.coinbaseInstance.sell_order()
+
+execution = Calculations()
+schedule.every(30).seconds.do(execution.run)
+
+while True:
+    schedule.run_pending()
+    time.sleep(1)
