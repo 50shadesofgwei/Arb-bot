@@ -24,13 +24,13 @@ class Coinbase:
         self.secretKey = secretKey
         self.accessKey = accessKey
 
-    def get_signature(self, timestamp, method, url_path, body):
+    def get_signature(self, timestamp: str, method: str, url_path: str, body: str) -> bytes:
         message = timestamp + method + url_path + body
         signature = hmac.new(self.secretKey.encode(
           "utf-8"), message.encode("utf-8"), digestmod=hashlib.sha256).digest()
         return signature
 
-    def get_headers(self, method, url_path, body):
+    def get_headers(self, method: str, url_path: str, body: str) -> str:
         signature = self.get_signature(self.timestamp, method, url_path, body)
         headers = {
             "CB-ACCESS-KEY": self.accessKey,
@@ -39,7 +39,7 @@ class Coinbase:
         }
         return headers
 
-    def get_btc_usd_price(self):
+    def get_btc_usd_price(self) -> float:
         method = "GET"
         url_path = "/v2/prices/BTC-USD/buy"
         body = ""
@@ -129,7 +129,7 @@ class Binance:
     def __init__(self, client):
         self.client = client
     
-    def get_BTCUSDT_price(self):
+    def get_BTCUSDT_price(self) -> float:
         try:
             binancePrice = requests.get('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT')
         except Exception as err:
@@ -173,7 +173,7 @@ class Binance:
         print(f"An unknown error occurred. Error message: {e}")
     
 
-class Calculations:
+class Trade:
     coinSecretKey = "YhgPlByvWIGeNUP4lgkumniGao7usjha"
     coinAccessKey = "DFtojCm1QzzWWCXp"
     biSecretKey = 'EplcH4b00prUTAN4PRs2cAHO88kYGztwjZn7Ezi1BjrfNHItvidHKIBPebPRMmCw'
@@ -185,15 +185,15 @@ class Calculations:
         self.binanceInstance = Binance(self.client)
         
 
-    def callCoinPrice(self):
+    def callCoinPrice(self) -> float:
         coinPrice = self.coinbaseInstance.get_btc_usd_price()
         return coinPrice
     
-    def callBiPrice(self):
+    def callBiPrice(self) -> float:
         biPrice = self.binanceInstance.get_BTCUSDT_price()
         return biPrice
 
-    def checkProfitability1(self, biPrice, coinPrice):
+    def comparePriceBinance(self, biPrice, coinPrice) -> bool:
         biPrice = self.callBiPrice()
         coinPrice = self.callCoinPrice()
         path1 = biPrice - coinPrice
@@ -202,7 +202,7 @@ class Calculations:
             return True
         else: return False
 
-    def checkProfitability2(self, biPrice, coinPrice):
+    def comparePriceCoinbase(self, biPrice, coinPrice) -> bool:
         biPrice = self.callBiPrice()
         coinPrice = self.callCoinPrice()
         path2 = coinPrice - biPrice
@@ -216,16 +216,16 @@ class Calculations:
         coinPrice = self.callCoinPrice()
         biPrice = self.callBiPrice()
 
-        if self.checkProfitability1(biPrice, coinPrice):
+        if self.comparePriceBinance(biPrice, coinPrice):
             # If price is higher on Binance, buy on Coinbase and sell on Binance
             self.coinbaseInstance.buy_order()
             self.binanceInstance.sell_order()
-        elif self.checkProfitability2(biPrice, coinPrice):
+        elif self.comparePriceCoinbase(biPrice, coinPrice):
             # If price is higher on Coinbase, buy on Binance and sell on Coinbase
             self.binanceInstance.buy_order()
             self.coinbaseInstance.sell_order()
 
-execution = Calculations()
+execution = Trade()
 schedule.every(30).seconds.do(execution.run)
 
 while True:
