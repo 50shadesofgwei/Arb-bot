@@ -2,6 +2,7 @@
 import requests 
 import threading
 import json
+from logger_config import logger
 import time
 import hmac
 import hashlib
@@ -14,7 +15,6 @@ import http.client
 from binance.client import Client
 from requests.exceptions import RequestException
 from binance.exceptions import BinanceAPIException, BinanceOrderException
-
 
 
 # All coinbase vars/defs
@@ -51,7 +51,7 @@ class Coinbase:
         try:
             response = requests.get(self.BASE_URL + url_path, headers=headers)
         except Exception as err:
-            print(f"An error occurred when calling BTC price from Coinbase: {err}")
+            logger.error(f"An error occurred when calling BTC price from Coinbase: {err}")
             return None
         else:
           coinbaseAPI = response.json()
@@ -69,7 +69,7 @@ class Coinbase:
         try:
             response = requests.get(self.BASE_URL + url_path, headers=headers)
         except Exception as err:
-            print(f"An error occurred when calling price ETH from Coinbase: {err}")
+            logger.error(f"An error occurred when calling price ETH from Coinbase: {err}")
             return None
         else:
           coinbaseAPI = response.json()
@@ -87,7 +87,7 @@ class Coinbase:
         try:
             response = requests.get(self.BASE_URL + url_path, headers=headers)
         except Exception as err:
-            print(f"An error occurred when calling LINK price from Coinbase: {err}")
+            logger.error(f"An error occurred when calling LINK price from Coinbase: {err}")
             return None
         else:
           coinbaseAPI = response.json()
@@ -120,13 +120,13 @@ class Coinbase:
             res = conn.getresponse()
             data = res.read()
             if res.status != 200:
-                print(f"Request failed with status {res.status}: {data.decode('utf-8')}")
+                logger.error(f"Request failed with status {res.status}: {data.decode('utf-8')}")
             else:
                 print(data.decode("utf-8"))
         except http.client.HTTPException as err:
-            print(f"A HTTP client error occurred when submitting {productID} buy order: {err}")
+            logger.error(f"A HTTP client error occurred when submitting {productID} buy order: {err}")
         except Exception as err:
-            print(f"A client error occurred when submitting {productID} buy order: {err}")
+            logger.error(f"A client error occurred when submitting {productID} buy order: {err}")
 
     def sell_order(self, productID: str, priceCall):
             conn = http.client.HTTPSConnection("api.coinbase.com")
@@ -152,13 +152,13 @@ class Coinbase:
                 res = conn.getresponse()
                 data = res.read()
                 if res.status != 200:
-                    print(f"Request failed with status {res.status}: {data.decode('utf-8')}")
+                    logger.error(f"Request failed with status {res.status}: {data.decode('utf-8')}")
                 else:
                     print(data.decode("utf-8"))
             except http.client.HTTPException as err:
-                print(f"A HTTP client error occurred when submitting a {productID} sell order: {err}")
+                logger.error(f"A HTTP client error occurred when submitting a {productID} sell order: {err}")
             except Exception as err:
-                print(f"A client error occurred when submitting a {productID} sell order: {err}")
+                logger.error(f"A client error occurred when submitting a {productID} sell order: {err}")
         
 
 # All binance vars/defs
@@ -174,7 +174,7 @@ class Binance:
         try:
             binancePrice = requests.get('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT')
         except Exception as err:
-            print(f"An error occurred when calling BTC price from Binance: {err}")
+            logger.error(f"An error occurred when calling BTC price from Binance: {err}")
             return None
         binancePrice = binancePrice.json()
         bistring = str(binancePrice)
@@ -187,7 +187,7 @@ class Binance:
         try:
             binancePrice = requests.get('https://api.binance.com/api/v3/ticker/price?symbol=ETHUSDT')
         except Exception as err:
-            print(f"An error occurred when calling ETH price from Binance: {err}")
+            logger.error(f"An error occurred when calling ETH price from Binance: {err}")
             return None
         binancePrice = binancePrice.json()
         bistring = str(binancePrice)
@@ -200,7 +200,7 @@ class Binance:
         try:
             binancePrice = requests.get('https://api.binance.com/api/v3/ticker/price?symbol=LINKUSDT')
         except Exception as err:
-            print(f"An error occurred when calling LINK price from Binance: {err}")
+            logger.error(f"An error occurred when calling LINK price from Binance: {err}")
             return None
         binancePrice = binancePrice.json()
         bistring = str(binancePrice)
@@ -218,11 +218,11 @@ class Binance:
               quoteOrderQty=1000
           )
       except BinanceAPIException as e:
-        print(f"Binance API returned an error when submitting {symbol} buy order. Error code: {e.status_code}, Error message: {e.message}")
+        logger.error(f"Binance API returned an error when submitting {symbol} buy order. Error code: {e.status_code}, Error message: {e.message}")
       except BinanceOrderException as e:
-        print(f"{symbol} buy order failed. Error message: {e.message}")
+        logger.error(f"{symbol} buy order failed. Error message: {e.message}")
       except Exception as e:
-        print(f"An unknown error occurred with {symbol} buy order. Error message: {e}")
+        logger.error(f"An unknown error occurred with {symbol} buy order. Error message: {e}")
     
     def sell_order(self, symbol: str, side):
       try:
@@ -233,11 +233,11 @@ class Binance:
             quoteOrderQty = 1000
           )
       except BinanceAPIException as e:
-        print(f"Binance API returned an error when sumbitting {symbol} sell order. Error code: {e.status_code}, Error message: {e.message}")
+        logger.error(f"Binance API returned an error when sumbitting {symbol} sell order. Error code: {e.status_code}, Error message: {e.message}")
       except BinanceOrderException as e:
-        print(f"{symbol} sell order failed. Error message: {e.message}")
+        logger.error(f"{symbol} sell order failed. Error message: {e.message}")
       except Exception as e:
-        print(f"An unknown error occurred with {symbol} sell order. Error message: {e}")
+        logger.error(f"An unknown error occurred with {symbol} sell order. Error message: {e}")
     
 
 class Trade:
@@ -250,7 +250,6 @@ class Trade:
     def __init__(self):
         self.coinbaseInstance = Coinbase(self.coinAccessKey, self.coinSecretKey)
         self.binanceInstance = Binance(self.client)
-        
 
     def callCoinbaseBTCPrice(self) -> float:
         coinPrice = self.coinbaseInstance.get_btc_usd_price()
