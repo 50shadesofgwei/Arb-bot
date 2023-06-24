@@ -52,6 +52,7 @@ class Coinbase:
             response = requests.get(self.BASE_URL + url_path, headers=headers)
         except Exception as err:
             logger.error(f"An error occurred when calling BTC price from Coinbase: {err}")
+            print(f"An error occurred when calling BTC price from Coinbase: {err}")
             return None
         else:
           coinbaseAPI = response.json()
@@ -70,6 +71,7 @@ class Coinbase:
             response = requests.get(self.BASE_URL + url_path, headers=headers)
         except Exception as err:
             logger.error(f"An error occurred when calling price ETH from Coinbase: {err}")
+            print(f"An error occurred when calling price ETH from Coinbase: {err}")
             return None
         else:
           coinbaseAPI = response.json()
@@ -88,6 +90,7 @@ class Coinbase:
             response = requests.get(self.BASE_URL + url_path, headers=headers)
         except Exception as err:
             logger.error(f"An error occurred when calling LINK price from Coinbase: {err}")
+            print(f"An error occurred when calling LINK price from Coinbase: {err}")
             return None
         else:
           coinbaseAPI = response.json()
@@ -121,12 +124,15 @@ class Coinbase:
             data = res.read()
             if res.status != 200:
                 logger.error(f"Request failed with status {res.status}: {data.decode('utf-8')}")
+                print(f"Request failed with status {res.status}: {data.decode('utf-8')}")
             else:
                 print(data.decode("utf-8"))
         except http.client.HTTPException as err:
             logger.error(f"A HTTP client error occurred when submitting {productID} buy order: {err}")
+            print(f"A HTTP client error occurred when submitting {productID} buy order: {err}")
         except Exception as err:
             logger.error(f"A client error occurred when submitting {productID} buy order: {err}")
+            print(f"A client error occurred when submitting {productID} buy order: {err}")
 
     def sell_order(self, productID: str, priceCall):
             conn = http.client.HTTPSConnection("api.coinbase.com")
@@ -153,12 +159,15 @@ class Coinbase:
                 data = res.read()
                 if res.status != 200:
                     logger.error(f"Request failed with status {res.status}: {data.decode('utf-8')}")
+                    print(f"Request failed with status {res.status}: {data.decode('utf-8')}")
                 else:
                     print(data.decode("utf-8"))
             except http.client.HTTPException as err:
                 logger.error(f"A HTTP client error occurred when submitting a {productID} sell order: {err}")
+                print(f"A HTTP client error occurred when submitting a {productID} sell order: {err}")
             except Exception as err:
                 logger.error(f"A client error occurred when submitting a {productID} sell order: {err}")
+                print(f"A client error occurred when submitting a {productID} sell order: {err}")
         
 
 # All binance vars/defs
@@ -219,10 +228,13 @@ class Binance:
           )
       except BinanceAPIException as e:
         logger.error(f"Binance API returned an error when submitting {symbol} buy order. Error code: {e.status_code}, Error message: {e.message}")
+        print(f"Binance API returned an error when submitting {symbol} buy order. Error code: {e.status_code}, Error message: {e.message}")
       except BinanceOrderException as e:
         logger.error(f"{symbol} buy order failed. Error message: {e.message}")
+        print(f"{symbol} buy order failed. Error message: {e.message}")
       except Exception as e:
         logger.error(f"An unknown error occurred with {symbol} buy order. Error message: {e}")
+        print(f"An unknown error occurred with {symbol} buy order. Error message: {e}")
     
     def sell_order(self, symbol: str, side):
       try:
@@ -282,7 +294,8 @@ class Trade:
         # Returns true if price is higher on Binance
         if result > 0:
             return True
-        else: return False
+        else: 
+            return False
 
     def isBTCPriceHigherOnCoinbase(self, biPrice, coinPrice) -> bool:
         biPrice = self.callBinanceBTCPrice()
@@ -346,12 +359,15 @@ class Trade:
             coinbaseBTCPrice = future1.result()
             binanceBTCPrice = future2.result()
 
+            productID = 'BTC-USD'
+            symbol = 'BTCUSDT'
+
         if self.isBTCPriceHigherOnBinance(binanceBTCPrice, coinbaseBTCPrice):
-         productID = 'BTC-USD'
-         symbol = 'BTCUSDT'
-         self.coinbaseInstance.buy_order(productID=productID)
-         self.binanceInstance.sell_order(symbol=symbol, side=self.client.SIDE_SELL)
+            print("TRUE")
+            self.coinbaseInstance.buy_order(productID=productID)
+            self.binanceInstance.sell_order(symbol=symbol, side=self.client.SIDE_SELL)
         elif self.isBTCPriceHigherOnCoinbase(binanceBTCPrice, coinbaseBTCPrice):
+            print('false')
             self.binanceInstance.buy_order(symbol=symbol, side=self.client.SIDE_BUY)
             self.coinbaseInstance.sell_order(productID=productID, priceCall=coinbaseBTCPrice)
 
@@ -363,9 +379,10 @@ class Trade:
             coinbaseETHPrice = future1.result()
             binanceETHPrice = future2.result()
 
-        if self.isETHPriceHigherOnBinance(binanceETHPrice, coinbaseETHPrice):
             productID = 'ETH-USD'
             symbol = 'ETHUSDT'
+
+        if self.isETHPriceHigherOnBinance(binanceETHPrice, coinbaseETHPrice):
             self.coinbaseInstance.buy_order(productID=productID)
             self.binanceInstance.sell_order(symbol=symbol, side=self.client.SIDE_SELL)
         elif self.isETHPriceHigherOnCoinbase(binanceETHPrice, coinbaseETHPrice):
@@ -380,9 +397,10 @@ class Trade:
             coinbaseLINKPrice = future1.result()
             binanceLINKPrice = future2.result()
 
-        if self.isLINKPriceHigherOnBinance(binanceLINKPrice, coinbaseLINKPrice):
             productID = 'LINK-USD'
             symbol = 'LINKUSDT'
+
+        if self.isLINKPriceHigherOnBinance(binanceLINKPrice, coinbaseLINKPrice):
             self.coinbaseInstance.buy_order(productID=productID)
             self.binanceInstance.sell_order(symbol=symbol, side=self.client.SIDE_SELL)
         elif self.isLINKPriceHigherOnCoinbase(binanceLINKPrice, coinbaseLINKPrice):
@@ -395,10 +413,11 @@ class Trade:
             executor.submit(self.process_btc)
             executor.submit(self.process_eth)
             executor.submit(self.process_link)
+            print(logger)
 
 
 execution = Trade()
-schedule.every(30).seconds.do(execution.run)
+schedule.every(5).seconds.do(execution.run)
 
 while True:
     schedule.run_pending()
