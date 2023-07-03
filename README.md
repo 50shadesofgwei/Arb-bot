@@ -8,7 +8,7 @@ IMPROVEMENTS:
 
 - Proxy Contracts
   
-When calling a price from Uniswap, if either of the pooled assets uses a proxy contract then calling 'await tokenContract0.symbol()' or other related functions (.decimals, etc) will throw a 'is not a function' error. As a temporary workaround we can hardcode the relevant data as is done in the GetPriceUSDCBase/Quote scripts, but this process will be harder to scale. For now while dealing with only a handful of tokens this is fine but in future a fix will be needed.
+When calling a price from Uniswap, if either of the pooled assets uses a proxy contract then calling 'await tokenContract0.symbol()' or other related functions (.decimals, etc) will throw an 'is not a function' error. As a temporary workaround we can hardcode the relevant data as is done in the GetPriceUSDCBase/Quote scripts, but this process will be harder to scale. For now while dealing with only a handful of tokens this is fine but in future a fix will be needed.
 
 - Speed 
 
