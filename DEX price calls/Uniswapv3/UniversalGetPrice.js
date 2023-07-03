@@ -19,7 +19,9 @@ const quoterAddress = "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
 const knownTokenData = {
     // Token address: {symbol, decimals}
     '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48': {symbol: 'USDC', decimals: 6},
-    '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2': {symbol: 'WETH', decimals: 18}
+    '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2': {symbol: 'WETH', decimals: 18},
+    '0x514910771AF9Ca656af840dff83E8264EcF986CA': {symbol: 'LINK', decimals: 18},
+
     // Add any tokens that use a proxy w/out the relevant details here
 };
 
@@ -32,7 +34,7 @@ const getTokenData = async (tokenAddress, provider) => {
 
     console.log(`Token data not found in knownTokenData for ${tokenAddress}. Fetching from contract...`);
 
-    // If not, query the token contract
+    // If not, query the token contract (assuming getAbi returns the ABI for the token)
     const tokenAbi = await getAbi(tokenAddress);
     const tokenContract = new ethers.Contract(
         tokenAddress,
@@ -56,46 +58,51 @@ const getTokenData = async (tokenAddress, provider) => {
 
 
 const getPrice = async (inputAmount, poolAddress) => {
-  const poolContract = new ethers.Contract(
-    poolAddress,
-    IUniswapV3PoolABI,
-    provider
-  )
-
-  const tokenAddress0 = await poolContract.token0();
-  const tokenAddress1 = await poolContract.token1();
-
-  const {symbol: tokenSymbol0, decimals: tokenDecimals0} = await getTokenData(ethers.utils.getAddress(tokenAddress0), provider);
-  const {symbol: tokenSymbol1, decimals: tokenDecimals1} = await getTokenData(ethers.utils.getAddress(tokenAddress1), provider);
+    const poolContract = new ethers.Contract(
+      poolAddress,
+      IUniswapV3PoolABI,
+      provider
+    )
   
-
-  const quoterContract = new ethers.Contract(
-    quoterAddress,
-    QuoterABI,
-    provider
-  )
-
-  const immutables = await getPoolImmutables(poolContract)
-
-  const amountIn = ethers.utils.parseUnits(
-    inputAmount.toString(),
-    tokenDecimals0
-  )
-
-  const quotedAmountOut = await quoterContract.callStatic.quoteExactInputSingle(
-    immutables.token0,
-    immutables.token1,
-    immutables.fee,
-    amountIn,
-    0
-  )
-
-  const amountOut = ethers.utils.formatUnits(quotedAmountOut, tokenDecimals1)
-
-  console.log(`${inputAmount} ${tokenSymbol0} can be swapped for ${amountOut} ${tokenSymbol1}`)
-
-  return amountOut
-}
+    let tokenAddress0 = await poolContract.token0();
+    let tokenAddress1 = await poolContract.token1();
+  
+    // Ensure the USDC is always the output token (token1)
+    if (tokenAddress0.toLowerCase() === '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48') {
+      [tokenAddress0, tokenAddress1] = [tokenAddress1, tokenAddress0];
+    }
+  
+    const {symbol: tokenSymbol0, decimals: tokenDecimals0} = await getTokenData(tokenAddress0, provider);
+    const {symbol: tokenSymbol1, decimals: tokenDecimals1} = await getTokenData(tokenAddress1, provider);
+  
+    const quoterContract = new ethers.Contract(
+      quoterAddress,
+      QuoterABI,
+      provider
+    )
+  
+    const immutables = await getPoolImmutables(poolContract)
+  
+    const amountIn = ethers.utils.parseUnits(
+      inputAmount.toString(),
+      tokenDecimals0
+    )
+  
+    const quotedAmountOut = await quoterContract.callStatic.quoteExactInputSingle(
+      tokenAddress0,
+      tokenAddress1,
+      immutables.fee,
+      amountIn,
+      0
+    )
+  
+    const amountOut = ethers.utils.formatUnits(quotedAmountOut, tokenDecimals1)
+  
+    console.log(`${inputAmount} ${tokenSymbol0} can be swapped for ${amountOut} ${tokenSymbol1}`)
+  
+    return amountOut
+  }
+  
 
 app.get('/getPrice', async (req, res) => {
   // Get parameters from the request
@@ -110,5 +117,3 @@ app.get('/getPrice', async (req, res) => {
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
-
-getPrice(1, '0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640')
