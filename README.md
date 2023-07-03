@@ -5,6 +5,10 @@ Basic python script
 Script detects if a difference exists between the prices of various tokens on both centralised and decentralised exchanges, then executes the respective trades in the event that a profitable route is found. To check for the most profitable path across a multilegged opportunity (anything with more than two trades) an instantiation of the bellman ford algorithm will be used.
 
 IMPROVEMENTS:
+
+- Proxy Contracts
+When calling a price from Uniswap, if either of the pooled assets uses a proxy contract then calling 'await tokenContract0.symbol()' or other related functions (.decimals, etc) will throw a 'is not a function' error. As a temporary workaround we can hardcode the relevant data as is done in the GetPriceUSDCBase/Quote scripts, but this process will be harder to scale. For now while dealing with only a handful of tokens this is fine but in future a fix will be needed.
+
 - Speed 
 
 The bot is slow - transcribing to a different language (C, Mojo, etc) could improve the time taken to execute the floating point math
