@@ -2,8 +2,7 @@
 Basic python script
 
 
-Script detects if a difference exists between the prices of BTC across Binance and Coinbase, then executes a pair of trades corresponding
-to where the price is higher vs lower.
+Script detects if a difference exists between the prices of various tokens on both centralised and decentralised exchanges, then executes the respective trades in the event that a profitable route is found. To check for the most profitable path across a multilegged opportunity (anything with more than two trades) an instantiation of the bellman ford algorithm will be used.
 
 IMPROVEMENTS:
 - Speed 
