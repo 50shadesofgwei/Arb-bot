@@ -2,6 +2,7 @@
 import requests 
 import threading
 import json
+from web3 import Web3, HTTPProvider
 from logger_config import logger
 import time
 import hmac
@@ -252,6 +253,20 @@ class Binance:
         logger.error(f"An unknown error occurred with {symbol} sell order. Error message: {e}")
     
 
+class Uniswap:
+    def __init__(self):
+        pass
+    
+    def getPrice(self, pool_address):
+        if not isinstance(pool_address, str):
+            raise ValueError("pool_address must be a string")
+
+        response = requests.get('http://localhost:3002/getPrice', params={'amount': 1, 'poolAddress': pool_address})
+        data = response.json()
+        return float(data['price'])
+
+
+
 class Trade:
     coinSecretKey = "YhgPlByvWIGeNUP4lgkumniGao7usjha"
     coinAccessKey = "DFtojCm1QzzWWCXp"
@@ -262,6 +277,25 @@ class Trade:
     def __init__(self):
         self.coinbaseInstance = Coinbase(self.coinAccessKey, self.coinSecretKey)
         self.binanceInstance = Binance(self.client)
+        self.uniswapInstance = Uniswap()
+    
+    def callUniswapBTC_USDCPrice(self) -> float:
+        poolAddress = '0x99ac8cA7087fA4A2A1FB6357269965A2014ABc35'
+        uniswapPrice = self.uniswapInstance.getPrice(poolAddress)
+        print(uniswapPrice)
+        return uniswapPrice
+
+    def callUniswapLINK_USDCPrice(self) -> float:
+        poolAddress = '0xfad57d2039c21811c8f2b5d5b65308aa99d31559'
+        uniswapPrice = self.uniswapInstance.getPrice(poolAddress)
+        print(uniswapPrice)
+        return uniswapPrice
+
+    def callUniswapETH_USDCPrice(self) -> float:
+        poolAddress = '0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640'
+        uniswapPrice = self.uniswapInstance.getPrice(poolAddress)
+        print(uniswapPrice)
+        return uniswapPrice
 
     def callCoinbaseBTCPrice(self) -> float:
         coinPrice = self.coinbaseInstance.get_btc_usd_price()
@@ -409,10 +443,11 @@ class Trade:
 
     def run(self):
         # Process each coin type concurrently
-        with ThreadPoolExecutor(max_workers=3) as executor:
+        with ThreadPoolExecutor(max_workers=4) as executor:
             executor.submit(self.process_btc)
             executor.submit(self.process_eth)
             executor.submit(self.process_link)
+            executor.submit(self.callUniswapBTC_USDCPrice)
             print(logger)
 
 
