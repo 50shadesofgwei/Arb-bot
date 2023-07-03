@@ -32,7 +32,7 @@ const getTokenData = async (tokenAddress, provider) => {
 
     console.log(`Token data not found in knownTokenData for ${tokenAddress}. Fetching from contract...`);
 
-    // If not, query the token contract (assuming getAbi returns the ABI for the token)
+    // If not, query the token contract
     const tokenAbi = await getAbi(tokenAddress);
     const tokenContract = new ethers.Contract(
         tokenAddress,
