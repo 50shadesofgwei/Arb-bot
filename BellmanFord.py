@@ -13,30 +13,32 @@ class Graph:
         weight = -math.log(rate)
         self.graph.append([source, target, weight])
 
-    def arbitrage(self, source):
-        distance = [float("Inf")] * self.V
-        distance[source] = 0
-        prev = [0] * self.V  # To keep track of the path
+   def arbitrage(self, source):
+    distance = [float("Inf")] * self.V
+    distance[source] = 0
+    prev = [0] * self.V  # To keep track of the path
 
-        for _ in range(self.V - 1):
-            for source, target, weight in self.graph:
-                if distance[source] != float("Inf") and distance[source] + weight < distance[target]:
-                    distance[target] = distance[source] + weight
-                    prev[target] = source  # Keep track of the path
-
+    for _ in range(self.V - 1):
         for source, target, weight in self.graph:
             if distance[source] != float("Inf") and distance[source] + weight < distance[target]:
-                print("Arbitrage opportunity detected: ")
-                print("Buy", self.token_map[source])
-                path = [target]
-                while target != source:
-                    path.insert(0, prev[target])
-                    target = prev[target]
-                path.append(source)
+                distance[target] = distance[source] + weight
+                prev[target] = source  # Keep track of the path
+
+    for source, target, weight in self.graph:
+        if distance[source] != float("Inf") and distance[source] + weight < distance[target]:
+            print("Arbitrage opportunity detected: ")
+            print("Buy", self.token_map[source])
+            path = [target]
+            while target != source:
+                path.insert(0, prev[target])
+                target = prev[target]
+            path.append(source)
+            if path[0] == path[-1] == source:  # Check if the cycle starts and ends with the specified token
                 for i in range(len(path) - 1):
                     print("Trade", self.token_map[path[i]], "for", self.token_map[path[i+1]])
                 return
-        print("No arbitrage opportunity detected")
+    print("No arbitrage opportunity detected")
+
 
 g = Graph(3)
 g.add_token(0, "ETH")
