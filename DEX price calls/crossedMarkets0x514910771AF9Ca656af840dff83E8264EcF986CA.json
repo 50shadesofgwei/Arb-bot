@@ -1,0 +1,102 @@
+[
+  {
+    "Profit": 0.2092,
+    "Volume": 0.375,
+    "BuyFromMarket": {
+      "Protocol": "",
+      "MarketAddress": "0x8a939151C476A9Ca3966fB87E0572a08fcDd14DB",
+      "BuyTokens": [
+        "0x514910771AF9Ca656af840dff83E8264EcF986CA",
+        "0x76306F029f8F99EFFE509534037Ba7030999E3CF"
+      ]
+    },
+    "SellToMarket": {
+      "Protocol": "",
+      "MarketAddress": "0x938167169Ec40EC331478cB516d958DfC0fa9098",
+      "SellTokens": [
+        "0x514910771AF9Ca656af840dff83E8264EcF986CA",
+        "0x76306F029f8F99EFFE509534037Ba7030999E3CF"
+      ]
+    }
+  },
+  {
+    "Profit": 0.0315,
+    "Volume": 0.505,
+    "BuyFromMarket": {
+      "Protocol": "",
+      "MarketAddress": "0x665daa5E280edD60B81c67d583Ed85B9A5cC45A6",
+      "BuyTokens": [
+        "0x514910771AF9Ca656af840dff83E8264EcF986CA",
+        "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+      ]
+    },
+    "SellToMarket": {
+      "Protocol": "",
+      "MarketAddress": "0x9Db10C305c671153662119D453C4D2c123725566",
+      "SellTokens": [
+        "0x514910771AF9Ca656af840dff83E8264EcF986CA",
+        "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+      ]
+    }
+  },
+  {
+    "Profit": 0.0245,
+    "Volume": 0.2083,
+    "BuyFromMarket": {
+      "Protocol": "",
+      "MarketAddress": "0xd8C8a2B125527bf97c8e4845b25dE7e964468F77",
+      "BuyTokens": [
+        "0x514910771AF9Ca656af840dff83E8264EcF986CA",
+        "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+      ]
+    },
+    "SellToMarket": {
+      "Protocol": "",
+      "MarketAddress": "0x2101072e369761435A532a83369984Ec3950aEF2",
+      "SellTokens": [
+        "0x514910771AF9Ca656af840dff83E8264EcF986CA",
+        "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+      ]
+    }
+  },
+  {
+    "Profit": 0.004,
+    "Volume": 0.5,
+    "BuyFromMarket": {
+      "Protocol": "",
+      "MarketAddress": "0x9b2662DC8b80B0fE79310AD316b943CB5Bb15e8b",
+      "BuyTokens": [
+        "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
+        "0x514910771AF9Ca656af840dff83E8264EcF986CA"
+      ]
+    },
+    "SellToMarket": {
+      "Protocol": "",
+      "MarketAddress": "0x722c54c0C34e7CE14d29D76073936d46a7b6E65F",
+      "SellTokens": [
+        "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
+        "0x514910771AF9Ca656af840dff83E8264EcF986CA"
+      ]
+    }
+  },
+  {
+    "Profit": 0.0024,
+    "Volume": 0.1,
+    "BuyFromMarket": {
+      "Protocol": "",
+      "MarketAddress": "0xcf4A0967C6c0b0fCD416283b8664f735391a36EC",
+      "BuyTokens": [
+        "0x514910771AF9Ca656af840dff83E8264EcF986CA",
+        "0xc00e94Cb662C3520282E6f5717214004A7f26888"
+      ]
+    },
+    "SellToMarket": {
+      "Protocol": "",
+      "MarketAddress": "0x260Fd50DA14CB406903AA3c53B1E4535A0E07637",
+      "SellTokens": [
+        "0x514910771AF9Ca656af840dff83E8264EcF986CA",
+        "0xc00e94Cb662C3520282E6f5717214004A7f26888"
+      ]
+    }
+  }
+]
